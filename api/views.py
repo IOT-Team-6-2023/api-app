@@ -17,7 +17,7 @@ class CandidatesViewSet(viewsets.ModelViewSet):
     
     #get votes for candidate
     @action(detail=True, methods=['get'])
-    def gwtVoteCount(self, request, pk=None):
+    def getVoteCount(self, request, pk=None):
         votes = Vote.objects.filter(candidate_id = pk)
         count = str(votes.count())
         return Response({'candidate_id': pk, 'vote count': count}) 
