@@ -1,13 +1,23 @@
 from rest_framework import serializers
 
-from api.models import Candidates, Vote
+from api.models import Candidate, Constituency, Party, TallyItem
 
-class VoteSerializer(serializers.HyperlinkedModelSerializer):
+class TallySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Vote
+        model = TallyItem
+        fields = ["candidate", "constituency"]
+
+class CandidateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Candidate
         fields = "__all__"
-
-class CandidateSerializer(serializers.HyperlinkedModelSerializer):
+        
+class PartySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = Candidates
-        fields = "__all__" 
+        model = Party
+        fields = "__all__"
+        
+class ConstituencySerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Constituency
+        fields = "__all__"        

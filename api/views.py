@@ -2,23 +2,31 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from api.models import Candidates, Vote
-from api.serializer import CandidateSerializer, VoteSerializer
+from api.models import Candidate, Constituency, Party, TallyItem
+from api.serializer import CandidateSerializer, ConstituencySerializer, PartySerializer, TallySerializer
 
-# Create your views here.
-class VoteViewSet(viewsets.ModelViewSet):
-    queryset = Vote.objects.all()
-    serializer_class = VoteSerializer
-    
-    
-class CandidatesViewSet(viewsets.ModelViewSet):
-    queryset = Candidates.objects.all()
-    serializer_class = CandidateSerializer
+#Create your views here.
+class TallyViewSet(viewsets.ModelViewSet):
+    queryset = TallyItem.objects.all()
+    serializer_class = TallySerializer
     
     #get votes for candidate
     @action(detail=True, methods=['get'])
-    def getVoteCount(self, request, pk=None):
-        votes = Vote.objects.filter(candidate_id = pk)
-        count = str(votes.count())
-        return Response({'candidate_id': pk, 'vote count': count}) 
+    def getVoteCount(self, request):
+        candidate_id = request.query_params.get('candidate_id')
+        constituency_id = request.query_params.get('constituency_id')
+        tally = TallyItem.objects.filter(candidate_id = candidate_id).filter(constituency_id=constituency_id)
+        count = str(tally.count())
+        return Response({'candidate_id': candidate_id, 'vote count': count})
     
+class CandidatesViewSet(viewsets.ModelViewSet):
+    queryset = Candidate.objects.all()
+    serializer_class = CandidateSerializer
+    
+class PartyViewSet(viewsets.ModelViewSet):
+    queryset = Party.objects.all()
+    serializer_class = PartySerializer
+    
+class ConstituencyViewSet(viewsets.ModelViewSet):
+    queryset = Constituency.objects.all()
+    serializer_class = ConstituencySerializer
