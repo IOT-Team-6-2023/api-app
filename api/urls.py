@@ -7,6 +7,7 @@ router = routers.DefaultRouter()
 router.register(r'candidates', CandidatesViewSet)
 router.register(r'party', PartyViewSet)
 router.register(r'constituency', ConstituencyViewSet)
+router.register(r'tally', TallyViewSet)
 
 vote_count = TallyViewSet.as_view({'get':'getVoteCount'})
 

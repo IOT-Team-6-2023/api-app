@@ -19,39 +19,78 @@ class TallyViewSet(viewsets.ModelViewSet):
         candidate_id = request.query_params.get('candidate_id',None)
         constituency_id = request.query_params.get('constituency_id', None)
         if candidate_id == None and constituency_id == None:   #http://localhost:8000/votingAPI/voteCount
-            print('1')
-            serializer = TallySerializer(self.get_queryset(), many = True)
-            return Response(serializer.data)
-        elif candidate_id ==  None:  #http://localhost:8000/votingAPI/voteCount?constituency_id=x
-            print('2')
-            tally = TallyItem.objects.filter(constituency = constituency_id).values('candidate').annotate(count = Count('candidate'))
-            print(tally)
+            candidates = Candidate.objects.all()
+            votes = TallyItem.objects.all()
+            print(candidates)
+            print(votes)
             temp = []
-            for k in tally:
-                temp.append({'candidate': k['candidate'], 'count': k['count']})
+            for c in candidates:
+                if votes.filter(candidate = c.candidate_id).exists() == False:
+                    k=0
+                else:
+                    k = votes.filter(candidate = c.candidate_id).count()
+                temp.append({'candidate_id': c.candidate_id, 'candidate_name': c.__str__(), 'count': str(k)})
             print(temp)
             return Response(temp)
+        
+        # elif candidate_id ==  None:  #http://localhost:8000/votingAPI/voteCount?constituency_id=x
+        #     print('2')
+        #     print(temp)
+        #     return Response(temp)
+        
         elif constituency_id == None: #http://localhost:8000/votingAPI/voteCount?candidate_id=x
-            print('3')
-            tally = TallyItem.objects.filter(candidate = candidate_id).values('constituency').annotate(count = Count('constituency'))
-            temp = []
-            for k in tally:
-                temp.append({'constituency': k['constituency'], 'count': k['count']})
-            return Response(temp)
-        else:     #http://localhost:8000/votingAPI/voteCount?candidate_id=x&constituency_id=y
-            print('4')
-            tally = TallyItem.objects.filter(candidate_id = candidate_id).filter(constituency_id=constituency_id)
-            count = str(tally.count())
-            return Response({'candidate_id': candidate_id, 'vote count': count})
+            count= 0
+            if Candidate.objects.filter(candidate_id = candidate_id).exists() == False:
+                return Response({'Error': 'Candidate doesn\'t exist'})
+            c = Candidate.objects.get(candidate_id = candidate_id)
+            print(c)
+            if TallyItem.objects.filter(candidate = candidate_id).exists():
+                count = TallyItem.objects.filter(candidate = candidate_id).count()
+                result = {'candidate_id': candidate_id, 'candidate': c.__str__(),'count': str(count)}
+            else:
+                result = {'candidate': candidate_id, 'count': '0'}
+            return Response(result)
+        
+        else:
+            return Response({'Error': 'Invalid Request'})
     
 class CandidatesViewSet(viewsets.ModelViewSet):
     queryset = Candidate.objects.all()
     serializer_class = CandidateSerializer
     
+    def create(self, request, *args, **kwargs):
+        print(request.data)
+        firstName = request.data.get('firstName')
+        middleName = request.data.get('middleName')
+        lastName = request.data.get('lastName')
+        print(firstName, middleName, lastName)
+        if self.queryset.filter(firstName = firstName).filter(middleName = middleName).filter(lastName = lastName).exists():
+            return Response({'Error':'Candidate already exists'})
+        
+        return super().create(request, *args, **kwargs)
+    
 class PartyViewSet(viewsets.ModelViewSet):
     queryset = Party.objects.all()
     serializer_class = PartySerializer
     
+    def create(self, request, *args, **kwargs):
+        print(request.data)
+        name = request.data.get('name')
+        print(name)
+        if self.queryset.filter(name = name).exists():
+            return Response({'Error':'Party already exists'})
+        
+        return super().create(request, *args, **kwargs)
+    
 class ConstituencyViewSet(viewsets.ModelViewSet):
     queryset = Constituency.objects.all()
     serializer_class = ConstituencySerializer
+    
+    def create(self, request, *args, **kwargs):
+        print(request.data)
+        name = request.data.get('name')
+        print(name)
+        if self.queryset.filter(name = name).exists():
+            return Response({'Error':'Constituency already exists'})
+        
+        return super().create(request, *args, **kwargs)
