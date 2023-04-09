@@ -4,7 +4,6 @@ from api.views import CandidatesViewSet, ConstituencyViewSet, PartyViewSet, Tall
 from rest_framework import routers
 
 router = routers.DefaultRouter()
-router.register(r'tally', TallyViewSet)
 router.register(r'candidates', CandidatesViewSet)
 router.register(r'party', PartyViewSet)
 router.register(r'constituency', ConstituencyViewSet)

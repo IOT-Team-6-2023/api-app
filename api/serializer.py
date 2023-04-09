@@ -5,7 +5,7 @@ from api.models import Candidate, Constituency, Party, TallyItem
 class TallySerializer(serializers.ModelSerializer):
     class Meta:
         model = TallyItem
-        fields = ["candidate", "constituency"]
+        fields = ["candidate","constituency"]
 
 class CandidateSerializer(serializers.ModelSerializer):
     class Meta:
